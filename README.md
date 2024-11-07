@@ -70,3 +70,190 @@ As an example, let’s look at the API for NASA’s [Astronomy Picture of the Da
 ```
 {"copyright":"Lyman Insley","date":"2023-02-06","explanation":"In the heart of the Rosette Nebula lies a bright cluster of stars that lights up the nebula.  The stars of NGC 2244 formed from the surrounding gas only a few million years ago.  The featured image taken in mid-January using multiple exposures and very specific colors of Sulfur (shaded red), Hydrogen (green), and Oxygen (blue), captures the central region in tremendous detail. A hot wind of particles streams away from the cluster stars and contributes to an already complex menagerie of gas and dust filaments while slowly evacuating the cluster center.  The Rosette Nebula's center measures about 50 light-years across, lies about 5,200 light-years away, and is visible with binoculars towards the constellation of the Unicorn (Monoceros).   Your Sky Surprise: What picture did APOD feature on your birthday? (post 1995)","hdurl":"https://apod.nasa.gov/apod/image/2302/Rosette_Insley_3424.jpg","media_type":"image","service_version":"v1","title":"In the Heart of the Rosette Nebula","url":"https://apod.nasa.gov/apod/image/2302/Rosette_Insley_960.jpg"}
 ```
+
+While the call is very similar to what we used for the Is it raining in Seattle? API, there is a small change. This API call needs an additional argument, called the API key. For many web APIs, these arguments are specified at the end of the URL, in the portion that starts with a `?`. Each argument is specified as a key value pair, each pair being separated by `&`, in the format `?argname1=argvalue1&argname2=argvalue2&argname3=argvalue3`. In this case, `?api_key=DEMO_KEY` tells us that we are calling the APOD API function with an argument name `api_key` whose value is `DEMO_KEY`. The function of the `api_key` is to help the web application recognize who you are, and keep track of how much you are using the API (which can then be used for billing you, or limiting your access, especially if the API is a paid service). In this case, we are using the default “demo” API key (`DEMO_KEY`), but if you plan to use this API for anything other than a tutorial, you should [sign up for an API key](https://api.nasa.gov/#signUp).
+
+The general format of the URL to call the APOD API’s basic function that we saw above is `https://api.nasa.gov/planetary/apod?api_key=<api_key>`. This can be thought of as a Python function called `get_apod(api_key)`. In fact, as we saw with the Is it raining in Seattle? API, we can implement this function ourselves:
+```
+import urllib.request
+
+def get_apod(api_key):
+    url = "https://api.nasa.gov/planetary/apod?api_key={}".format(api_key)
+    with urllib.request.urlopen(url) as request:
+        response = request.read().decode()
+
+    return response
+
+# Test code
+print(get_apod("DEMO_KEY"))
+```
+
+## Complex data: JSON to the rescue
+Compared to the Is it raining in Seattle?, the “return value” for the APOD API is more complicated. This is where JSON becomes useful.
+
+JSON is a format where objects with attributes-value or key-value pairs can be represented as strings. A lot of programming languages can turn a JSON string into a data structure that supports key-value pairs—in the case of Python, the json module can turn JSON into dictionaries. For example, the JSON string:
+```
+{"a": 1, "b": 3}
+```
+
+can be converted to a dictionary as the following Python code shows:
+
+```
+import json
+
+json_string = '{"a": 1, "b": 3}'
+parsed_data = json.loads(json_string)
+
+for key in parsed_data:
+    print("{}:{}".format(key, parsed_data[key]))
+
+# Prints:  
+# a:1
+# b:3
+```
+
+Note: It is also possible for JSON to represent a collection of objects, rather than a single object, which can then be turned into a Python list of dictionaries by the json module. We will soon see how.
+
+Going back to the APOD API, for our `get_apod()` function, we can parse the returned data with `json.loads()` to make it more usable in our program.
+
+```
+import json
+import urllib.request
+
+def get_apod(api_key):
+    url = "https://api.nasa.gov/planetary/apod?api_key={}".format(api_key)
+    with urllib.request.urlopen(url) as request:
+        response = request.read().decode()
+
+    # Change to return a dictionary, rather
+    # than the "raw" JSON
+    return json.loads(response)
+
+# Test code
+apod_dict = get_apod("DEMO_KEY")
+print(apod_dict.["title"])
+# Should print the title of today's photo
+```
+
+## From JSON to dictionaries to objects
+A common thing that is done with the dictionaries that we get from APIs is to then create objects, with values in the dictionary being the attributes of the object. For example, if we define a class called AstroPhoto, the value of the title key of the dictionary returned by get_apod() can be the value of the title attribute of an instance, the value of the date key can be value of the date attribute, and so on. Note that the key name of the dictionary does not need to be exactly same the attribute name, nor do all keys need to have corresponding attributes. It is up to us, the programmer, to make those decisions. For example:
+
+```
+import json
+import urllib.request
+
+class AstroPhoto:
+    def __init__(self, data):
+        self.title = data["title"]
+        self.date = data["date"]
+        self.description = data["explanation"]
+        self.url = data["hdurl"]
+
+def get_apod(api_key):
+    url = "https://api.nasa.gov/planetary/apod?api_key={}".format(api_key)
+    with urllib.request.urlopen(url) as request:
+        response = request.read().decode()
+
+    # Further change to return an instance of 
+    # AstroPhoto, rather than a dictionary
+    return AstroPhoto(json.loads(response))
+
+# Test code
+apod_instance = get_apod("DEMO_KEY")
+print(apod_instance.title)
+# Should print the title of today's photo 
+# but notice the changed syntax. Instead of
+# accessing a key value, we are accessing an
+# attribute
+```
+Of course, a class with a few attributes is not very much different from a dictionary; to use the full potential of object-oriented programming, we need methods. We can add a method called .get_short_description() for a shorter description (or explanation) of the photo. The .get_short_description() method returns the entire description if it is less than or equal to 200 characters long, and if not, it returns a truncated description that is 197 characters long, followed by “…”.
+
+```
+
+import json
+import urllib.request
+
+class AstroPhoto:
+    def __init__(self, data):
+        self.title = data["title"]
+        self.date = data["date"]
+        self.description = data["explanation"]
+        self.url = data["hdurl"]
+
+    # new method
+    def get_short_description(self):
+        if len(self.description) <= 200:
+            return self.description
+        else:
+            return (self.description[0:197] + "...")
+
+def get_apod(api_key):
+    url = "https://api.nasa.gov/planetary/apod?api_key={}".format(api_key)
+    with urllib.request.urlopen(url) as request:
+        response = request.read().decode()
+
+    return AstroPhoto(json.loads(response))
+
+# Test code
+apod_instance = get_apod("DEMO_KEY")
+print("Title: {}".format(apod_instance.title))
+print("Description: {}".format(apod_instance.get_short_description()))
+
+## Doing more with the APOD API
+The APOD API can do more. The table of parameter names and their descriptions is shown below (copied from the [NASA API website](https://api.nasa.gov/#browseAPI)) 
+
+|  Parameter |    Type    |  Default |                                                          Description                                                          |   |
+|:----------:|:----------:|:--------:|:-----------------------------------------------------------------------------------------------------------------------------:|---|
+| date       | YYYY-MM-DD | today    | The date of the APOD image to retrieve                                                                                        |   |
+| start_date | YYYY-MM-DD | none     | The start of a date range, when requesting date for a range of dates. Cannot be used with date.                               |   |
+| end_date   | YYYY-MM-DD | today    | The end of the date range, when used with start_date.                                                                         |   |
+| count      | int        | none     | If this is specified then count randomly chosen images will be returned. Cannot be used with date or start_date and end_date. |   |
+| thumbs     | bool       | False    | Return the URL of video thumbnail. If an APOD is not a video, this parameter is ignored.                                      |   |
+| api_key    | string     | DEMO_KEY | api.nasa.gov key for expanded usage                                                                                           |   |
+
+This suggests that, for example, we can get the APOD for any past date, and not just for today by adding a parameter called date to our URL. The format of the date value is specified as YYYY-MM-DD, so the URL for getting the APOD for 31st December 2022 would be https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=2022-12-31Links to an external site.. We can extend our previous get_apod() function definition to support the new parameter (Note: I removed the rest of the code that we wrote earlier to focus on what’s important here):
+
+```
+def get_apod(api_key, date):
+    url = "https://api.nasa.gov/planetary/apod?api_key={}&date={}".format(api_key, date)
+    with urllib.request.urlopen(url) as request:
+        response = request.read().decode()
+
+    return AstroPhoto(json.loads(response))
+
+# Test code
+# Should print:
+# Title: Moon over Makemake
+apod_instance = get_apod("DEMO_KEY", "2022-12-31")
+print("Title: {}".format(apod_instance.title))
+```
+
+We can even get multiple APODs, either a random selection (with the count parameter), or within a specific date range (with the start_date and end_date parameters). Let’s extend our code to use the count parameter. We can start with figuring out the URL, and then trying it out on the web browser. For the URL https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=2Links to an external site., we get back the following data (yours might look different as this returns randomly chosen photos):
+
+```
+[{"date":"1999-08-12","explanation":"Last October the Space Shuttle Discovery deployed Spartan 201, a spacecraft that monitored the corona of the Sun.  Instruments on Spartan 201 were used to estimate the density of electrons emitted into the solar corona, calibrate data from the Solar and Heliospheric Observatory (SOHO) satellite, and study how the Sun is changing as it reaches maximum activity over the next few years.  Pictured above, the space shuttle's robot arm (top left) releases Spartan (center) into space.  The tail fin of the space shuttle is visible on the right, while the Earth hovers in the background.  Spartan floated near the shuttle for two days before it was picked up again and returned to Earth.","hdurl":"https://apod.nasa.gov/apod/image/9908/spartan201_sts95_big.jpg","media_type":"image","service_version":"v1","title":"Deploying Spartan","url":"https://apod.nasa.gov/apod/image/9908/spartan201_sts95.jpg"},{"copyright":"T. Rector","date":"2007-03-21","explanation":"It may look to some like a duck, but it lays stars instead of eggs.  In the center of the above image lies Barnard 163, a nebula of molecular gas and dust so thick that visible light can't shine through it.   With a wing span measured in light years, Barnard 163's insides are surely colder than its exterior, allowing conditions where gas can clump and eventually form stars.  Barnard 163 lies about 3,000 light years from Earth toward the constellation of Cepheus the King. The red glow in the background results from IC 1396, a large emission nebula that houses the Elephant's Trunk Nebula.  Finding Barnard 163 in an image of its greater emission nebula IC 1396 can be a challenge, but it's possible.    News: Night and Day are Equal: Today is an Equinox","hdurl":"https://apod.nasa.gov/apod/image/0703/barnard163_noao_big.jpg","media_type":"image","service_version":"v1","title":"Molecular Cloud Barnard 163","url":"https://apod.nasa.gov/apod/image/0703/barnard163_noao.jpg"}]
+```
+
+If you look carefully at the JSON that get back from the API, you will notice that rather than one dictionary, we get a collection back (indicated by the [ and the ] pair at the start and end of the string), which json can turn into a list of dictionaries. However, our code so far relies on the assumption that get_apod() returns a single dictionary. One approach to address this is to simply create a new function, called get_random_apods(api_key, count) that will return count number of randomly chosen AstroPhoto instances (as with earlier, only the function definition is shown below):
+
+```
+def get_random_apods(api_key, count):
+    url = "https://api.nasa.gov/planetary/apod?api_key={}&count={}".format(api_key, count)
+    with urllib.request.urlopen(url) as request:
+        response = request.read().decode()
+
+    photos = []
+    
+    for item in json.loads(response):
+        # Each item in the list is an APOD dictionary
+        # We create a new instance of AstroPhoto using
+        # the dictionary, and then append it to photos
+        photos.append(AstroPhoto(item))
+    
+    return photos
+
+# Test code
+# Should print 2
+apods = get_random_apods("DEMO_KEY", 2)
+print(len(apods))
+```
