@@ -257,3 +257,35 @@ def get_random_apods(api_key, count):
 apods = get_random_apods("DEMO_KEY", 2)
 print(len(apods))
 ```
+
+# Exercises
+Learning to program takes practice. In order to sharpen your skills, you may want to try out some of the following exercises. These are for your own practice, we will not grade them. Of course, if you have questions, feel free to meet one of us during office hours.
+
+## Exercise 1: Get APODs between two dates
+Similar to the `get_random_apods()` function that was defined above, can you create a function called `get_apods_between(api_key, start_date, end_date)` that returns all the APODs between two dates. Once you write the function, try it out for the range between 1st January 2023 and 7th January 2023.
+
+## Exercise 2: Working with a new Web API: The Zippopotamus API
+The [Zippopotamus API](https://api.zippopotam.us/) lets you look up information about zip codes. Let’s say we want to look up information about the zip code 98105. The URL for doing that with the Zippopotamus API is [https://api.zippopotam.us/us/98105](https://api.zippopotam.us/us/98105). Note how the parameters in this case are passed slightly different compared to the APOD API. The general format is `https://api.zippopotam.us/<countrycode>/<zipcode>`, rather than `https://api.zippopotam.us/?countrycode=<countrycode>&zipcode=<zipcode>`. This is another way of sending parameter values to API calls.
+
+Exercise 2a: Implement a function to get information about a specific zip code
+Accessing a URL of the format `https://api.zippopotam.us/<countrycode>/<zipcode>` can be thought as calling a function called `zipcode_info(countrycode, zipcode)`. Implement this wrapper function in Python. The function should return the JSON string returned by the API.
+
+Exercise 2b: Turning the API data into objects
+Once you have implemented the zipcode_info() function, calling zipcode_info("US", 98105) would return the following JSON string:
+
+{"post code": "98105", "country": "United States", "country abbreviation": "US", "places": [{"place name": "Seattle", "longitude": "-122.3022", "state": "Washington", "state abbreviation": "WA", "latitude": "47.6633"}]}
+The useful information in this JSON string is the value of the places key, which is a list of dictionaries. Each dictionary in this key represents a place.
+
+For the first step in this exercise, implement a class called Place, with the following attributes
+
+ - longitude
+ - latitude
+ - name
+ - state
+
+Next, modify the zipcode_info() function to return a list of instances of Place instead of a JSON string. The list for zipcode_info("US", 98105) will be only 1 element long, but you can test your code with zipcode_info("US", 02861), which should return two Place instances, one in Massachusetts, and the other one in Rhode Island. This zip code is one of the few that [span multiple states](https://gis.stackexchange.com/questions/53918/determining-which-us-zipcodes-map-to-more-than-one-state-or-more-than-one-city/167333#167333).
+
+# Additional readings on APIs
+ - [What is an API?](https://18f.gsa.gov/2016/04/22/what-is-an-api/)
+ - [Wikipedia article on an API](https://en.wikipedia.org/wiki/API)
+
