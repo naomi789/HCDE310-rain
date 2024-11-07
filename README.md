@@ -39,7 +39,7 @@ with urllib.request.urlopen('https://depts.washington.edu/ledlab/teaching/is-it-
 if is_it_raining_in_seattle == "true":
     print("Yes!")
 else:
-    print("No!")```
+    print("No!") ```
 
 From the example above, we can see that a “function” in a web API is a specific URL (this mapping is usually defined in the web API documentation), and when one accesses the URL from either a web-browser or Python code, the “return value” of the “function” is obtained. It is possible, and common to hide these details. For example, you can write a Python module with a function called `is_it_raining_in_seattle()` that uses the API described above.
 
@@ -52,7 +52,7 @@ def is_it_raining_in_seattle():
     if is_it_raining_in_seattle == "true":
         return True
     else:
-        return False```
+        return False ```
 
 If you share this module with your friend or colleague, they will not even have to know anything about the Is it raining in Seattle? API or urllib. All they would need to know is that there is a Python function called `is_it_raining_in_seattle()` which returns `True` if it is currently raining in Seattle, and `False` if not.
 
@@ -62,5 +62,7 @@ The above approach of “hiding away” some details of working with web APIs th
 A web API with a single function is not very useful. Most web APIs have multiple functions, or even if it is an API with a single function, the function usually accepts some kind of “arguments” to make it more useful.
 
 As an example, let’s look at the API for NASA’s [Astronomy Picture of the Day (APOD)](https://apod.nasa.gov/apod/astropix.html), a web application that shows a picture of our universe along with a description written by an astronomer. The picture changes every day. The most basic way to use this API is to access the URL: [https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY](https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY). This returns information about the current picture of the day, for example:
-```{"copyright":"Lyman Insley","date":"2023-02-06","explanation":"In the heart of the Rosette Nebula lies a bright cluster of stars that lights up the nebula.  The stars of NGC 2244 formed from the surrounding gas only a few million years ago.  The featured image taken in mid-January using multiple exposures and very specific colors of Sulfur (shaded red), Hydrogen (green), and Oxygen (blue), captures the central region in tremendous detail. A hot wind of particles streams away from the cluster stars and contributes to an already complex menagerie of gas and dust filaments while slowly evacuating the cluster center.  The Rosette Nebula's center measures about 50 light-years across, lies about 5,200 light-years away, and is visible with binoculars towards the constellation of the Unicorn (Monoceros).   Your Sky Surprise: What picture did APOD feature on your birthday? (post 1995)","hdurl":"https://apod.nasa.gov/apod/image/2302/Rosette_Insley_3424.jpg","media_type":"image","service_version":"v1","title":"In the Heart of the Rosette Nebula","url":"https://apod.nasa.gov/apod/image/2302/Rosette_Insley_960.jpg"}
-```
+
+
+
+``` {"copyright":"Lyman Insley","date":"2023-02-06","explanation":"In the heart of the Rosette Nebula lies a bright cluster of stars that lights up the nebula.  The stars of NGC 2244 formed from the surrounding gas only a few million years ago.  The featured image taken in mid-January using multiple exposures and very specific colors of Sulfur (shaded red), Hydrogen (green), and Oxygen (blue), captures the central region in tremendous detail. A hot wind of particles streams away from the cluster stars and contributes to an already complex menagerie of gas and dust filaments while slowly evacuating the cluster center.  The Rosette Nebula's center measures about 50 light-years across, lies about 5,200 light-years away, and is visible with binoculars towards the constellation of the Unicorn (Monoceros).   Your Sky Surprise: What picture did APOD feature on your birthday? (post 1995)","hdurl":"https://apod.nasa.gov/apod/image/2302/Rosette_Insley_3424.jpg","media_type":"image","service_version":"v1","title":"In the Heart of the Rosette Nebula","url":"https://apod.nasa.gov/apod/image/2302/Rosette_Insley_960.jpg"} ```
