@@ -24,7 +24,11 @@ json exposes an API familiar to users of the standard library marshal and pickle
 This is somewhat confusing, as json is not an application in the sense of the term we have seen so far. It is a module that you can import and then use in your Python programs. However, what json does represent is a collection of functions doing related things (working with JSON data). All those functions make up the API of the Python json module. Thus, when you hear someone talk about the API of a particular Python module, they are talking about the functions and classes that are a part of that module.
 
 # Web APIs
-The idea of an API also applies to web-sites. Many modern websites are full-fledged software applications; the two major distinctions with applications on your computer being that (i) rather that running on your computer, they run on other computers (servers) connected to the Internet, and (ii) you typically interact with them with a web-browser over the Internet. For example, when you log into Canvas for this course, you are interacting with a software application that is connected to a database that has all the material related to this course, as well as information about you, your assignment submissions, and more.
+The idea of an API also applies to web-sites. Many modern websites are full-fledged software applications; the two major distinctions with applications on your computer being that: 
+ - rather that running on your computer, they run on other computers (servers) connected to the Internet
+ - you typically interact with them with a web-browser over the Internet.
+
+For example, when you log into Canvas for this course, you are interacting with a software application that is connected to a database that has all the material related to this course, as well as information about you, your assignment submissions, and more.
 
 Building on the idea of an API that we saw earlier, a web API, therefore, lets you write programs that can interact with a website, over the Internet. In the rest of this section, we will look at a few ways in which web APIS work, and how you can work with them from your Python code.
 
@@ -92,6 +96,7 @@ print(get_apod("DEMO_KEY"))
 Compared to the Is it raining in Seattle?, the “return value” for the APOD API is more complicated. This is where JSON becomes useful.
 
 JSON is a format where objects with attributes-value or key-value pairs can be represented as strings. A lot of programming languages can turn a JSON string into a data structure that supports key-value pairs—in the case of Python, the json module can turn JSON into dictionaries. For example, the JSON string:
+
 ```
 {"a": 1, "b": 3}
 ```
@@ -136,7 +141,7 @@ print(apod_dict.["title"])
 ```
 
 ## From JSON to dictionaries to objects
-A common thing that is done with the dictionaries that we get from APIs is to then create objects, with values in the dictionary being the attributes of the object. For example, if we define a class called AstroPhoto, the value of the title key of the dictionary returned by get_apod() can be the value of the title attribute of an instance, the value of the date key can be value of the date attribute, and so on. Note that the key name of the dictionary does not need to be exactly same the attribute name, nor do all keys need to have corresponding attributes. It is up to us, the programmer, to make those decisions. For example:
+A common thing that is done with the dictionaries that we get from APIs is to then create objects, with values in the dictionary being the attributes of the object. For example, if we define a class called `AstroPhoto`, the value of the title key of the dictionary returned by `get_apod()` can be the value of the title attribute of an instance, the value of the date key can be value of the date attribute, and so on. Note that the key name of the dictionary does not need to be exactly same the attribute name, nor do all keys need to have corresponding attributes. It is up to us, the programmer, to make those decisions. For example:
 
 ```
 import json
@@ -166,10 +171,9 @@ print(apod_instance.title)
 # accessing a key value, we are accessing an
 # attribute
 ```
-Of course, a class with a few attributes is not very much different from a dictionary; to use the full potential of object-oriented programming, we need methods. We can add a method called .get_short_description() for a shorter description (or explanation) of the photo. The .get_short_description() method returns the entire description if it is less than or equal to 200 characters long, and if not, it returns a truncated description that is 197 characters long, followed by “…”.
+Of course, a class with a few attributes is not very much different from a dictionary; to use the full potential of object-oriented programming, we need methods. We can add a method called `.get_short_description()` for a shorter description (or explanation) of the photo. The `.get_short_description()` method returns the entire description if it is less than or equal to 200 characters long, and if not, it returns a truncated description that is 197 characters long, followed by “…”.
 
 ```
-
 import json
 import urllib.request
 
@@ -198,6 +202,7 @@ def get_apod(api_key):
 apod_instance = get_apod("DEMO_KEY")
 print("Title: {}".format(apod_instance.title))
 print("Description: {}".format(apod_instance.get_short_description()))
+```
 
 ## Doing more with the APOD API
 The APOD API can do more. The table of parameter names and their descriptions is shown below (copied from the [NASA API website](https://api.nasa.gov/#browseAPI)) 
@@ -211,7 +216,7 @@ The APOD API can do more. The table of parameter names and their descriptions is
 | thumbs     | bool       | False    | Return the URL of video thumbnail. If an APOD is not a video, this parameter is ignored.                                      |   |
 | api_key    | string     | DEMO_KEY | api.nasa.gov key for expanded usage                                                                                           |   |
 
-This suggests that, for example, we can get the APOD for any past date, and not just for today by adding a parameter called date to our URL. The format of the date value is specified as YYYY-MM-DD, so the URL for getting the APOD for 31st December 2022 would be https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=2022-12-31Links to an external site.. We can extend our previous get_apod() function definition to support the new parameter (Note: I removed the rest of the code that we wrote earlier to focus on what’s important here):
+This suggests that, for example, we can get the APOD for any past date, and not just for today by adding a parameter called date to our URL. The format of the date value is specified as `YYYY-MM-DD`, so the URL for getting the APOD for 31st December 2022 would be `https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&date=2022-12-31`. We can extend our previous `get_apod()` function definition to support the new parameter (Note: I removed the rest of the code that we wrote earlier to focus on what’s important here):
 
 ```
 def get_apod(api_key, date):
@@ -228,13 +233,13 @@ apod_instance = get_apod("DEMO_KEY", "2022-12-31")
 print("Title: {}".format(apod_instance.title))
 ```
 
-We can even get multiple APODs, either a random selection (with the count parameter), or within a specific date range (with the start_date and end_date parameters). Let’s extend our code to use the count parameter. We can start with figuring out the URL, and then trying it out on the web browser. For the URL https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=2Links to an external site., we get back the following data (yours might look different as this returns randomly chosen photos):
+We can even get multiple APODs, either a random selection (with the count parameter), or within a specific date range (with the start_date and end_date parameters). Let’s extend our code to use the count parameter. We can start with figuring out the URL, and then trying it out on the web browser. For the URL `https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=2`, we get back the following data (yours might look different as this returns randomly chosen photos):
 
 ```
 [{"date":"1999-08-12","explanation":"Last October the Space Shuttle Discovery deployed Spartan 201, a spacecraft that monitored the corona of the Sun.  Instruments on Spartan 201 were used to estimate the density of electrons emitted into the solar corona, calibrate data from the Solar and Heliospheric Observatory (SOHO) satellite, and study how the Sun is changing as it reaches maximum activity over the next few years.  Pictured above, the space shuttle's robot arm (top left) releases Spartan (center) into space.  The tail fin of the space shuttle is visible on the right, while the Earth hovers in the background.  Spartan floated near the shuttle for two days before it was picked up again and returned to Earth.","hdurl":"https://apod.nasa.gov/apod/image/9908/spartan201_sts95_big.jpg","media_type":"image","service_version":"v1","title":"Deploying Spartan","url":"https://apod.nasa.gov/apod/image/9908/spartan201_sts95.jpg"},{"copyright":"T. Rector","date":"2007-03-21","explanation":"It may look to some like a duck, but it lays stars instead of eggs.  In the center of the above image lies Barnard 163, a nebula of molecular gas and dust so thick that visible light can't shine through it.   With a wing span measured in light years, Barnard 163's insides are surely colder than its exterior, allowing conditions where gas can clump and eventually form stars.  Barnard 163 lies about 3,000 light years from Earth toward the constellation of Cepheus the King. The red glow in the background results from IC 1396, a large emission nebula that houses the Elephant's Trunk Nebula.  Finding Barnard 163 in an image of its greater emission nebula IC 1396 can be a challenge, but it's possible.    News: Night and Day are Equal: Today is an Equinox","hdurl":"https://apod.nasa.gov/apod/image/0703/barnard163_noao_big.jpg","media_type":"image","service_version":"v1","title":"Molecular Cloud Barnard 163","url":"https://apod.nasa.gov/apod/image/0703/barnard163_noao.jpg"}]
 ```
 
-If you look carefully at the JSON that get back from the API, you will notice that rather than one dictionary, we get a collection back (indicated by the [ and the ] pair at the start and end of the string), which json can turn into a list of dictionaries. However, our code so far relies on the assumption that get_apod() returns a single dictionary. One approach to address this is to simply create a new function, called get_random_apods(api_key, count) that will return count number of randomly chosen AstroPhoto instances (as with earlier, only the function definition is shown below):
+If you look carefully at the JSON that get back from the API, you will notice that rather than one dictionary, we get a collection back (indicated by the `[` and `]` pair at the start and end of the string), which json can turn into a list of dictionaries. However, our code so far relies on the assumption that `get_apod()` returns a single dictionary. One approach to address this is to simply create a new function, called `get_random_apods(api_key, count)` that will return count number of randomly chosen AstroPhoto instances (as with earlier, only the function definition is shown below):
 
 ```
 def get_random_apods(api_key, count):
@@ -271,7 +276,7 @@ Exercise 2a: Implement a function to get information about a specific zip code
 Accessing a URL of the format `https://api.zippopotam.us/<countrycode>/<zipcode>` can be thought as calling a function called `zipcode_info(countrycode, zipcode)`. Implement this wrapper function in Python. The function should return the JSON string returned by the API.
 
 Exercise 2b: Turning the API data into objects
-Once you have implemented the zipcode_info() function, calling zipcode_info("US", 98105) would return the following JSON string:
+Once you have implemented the `zipcode_info()` function, calling zipcode_info("US", 98105) would return the following JSON string:
 
 {"post code": "98105", "country": "United States", "country abbreviation": "US", "places": [{"place name": "Seattle", "longitude": "-122.3022", "state": "Washington", "state abbreviation": "WA", "latitude": "47.6633"}]}
 The useful information in this JSON string is the value of the places key, which is a list of dictionaries. Each dictionary in this key represents a place.
@@ -283,7 +288,7 @@ For the first step in this exercise, implement a class called Place, with the fo
  - name
  - state
 
-Next, modify the zipcode_info() function to return a list of instances of Place instead of a JSON string. The list for zipcode_info("US", 98105) will be only 1 element long, but you can test your code with zipcode_info("US", 02861), which should return two Place instances, one in Massachusetts, and the other one in Rhode Island. This zip code is one of the few that [span multiple states](https://gis.stackexchange.com/questions/53918/determining-which-us-zipcodes-map-to-more-than-one-state-or-more-than-one-city/167333#167333).
+Next, modify the zipcode_info() function to return a list of instances of `Place` instead of a JSON string. The list for `zipcode_info("US", 98105)` will be only 1 element long, but you can test your code with `zipcode_info("US", 02861)`, which should return two Place instances, one in Massachusetts, and the other one in Rhode Island. This zip code is one of the few that [span multiple states](https://gis.stackexchange.com/questions/53918/determining-which-us-zipcodes-map-to-more-than-one-state-or-more-than-one-city/167333#167333).
 
 # Additional readings on APIs
  - [What is an API?](https://18f.gsa.gov/2016/04/22/what-is-an-api/)
